@@ -1,6 +1,6 @@
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 
-from .filters import cars_filter
+from .filters import CarFilter
 from .models import CarModel
 from .serializers import CarSerializer
 
@@ -8,9 +8,7 @@ from .serializers import CarSerializer
 class CarsListCreateView(ListAPIView):
     queryset = CarModel.objects.all()
     serializer_class = CarSerializer
-
-    def get_queryset(self):
-        return cars_filter(self.request.query_params)
+    filterset_class = CarFilter
 
 
 class CarsRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):

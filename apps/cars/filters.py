@@ -1,47 +1,29 @@
-from django.db.models import QuerySet
-from django.http import QueryDict
-from rest_framework.exceptions import ValidationError
+from django_filters import rest_framework as filters
 
-from .models import CarModel
-from .serializers import CarSerializer
+from apps.cars.models import CarModel
 
 
-def cars_filter(query: QueryDict) -> QuerySet:
-    qs = CarModel.objects.all()
-    for key, value in query.items():
-        match key:
-            case 'price_gt':
-                qs = qs.filter(price__gt=value)
-            case 'price_gte':
-                qs = qs.filter(price__gte=value)
-            case 'price_lt':
-                qs = qs.filter(price__lt=value)
-            case 'price_lte':
-                qs = qs.filter(price__lte=value)
+# CarModel.objects.filter(yea)
+class CarFilter(filters.FilterSet):
+    year_lt = filters.NumberFilter('year', lookup_expr='lt')
+    year_gt = filters.NumberFilter('year', lookup_expr='gt')
+    year_lte = filters.NumberFilter('year', lookup_expr='lte')
+    year_gte = filters.NumberFilter('year', lookup_expr='gte')
+    year_range = filters.NumberFilter('year', lookup_expr='range')
 
-            case 'year_gt':
-                qs = qs.filter(year__gt=value)
-            case 'year_gte':
-                qs = qs.filter(year__gte=value)
-            case 'year_lt':
-                qs = qs.filter(year__lt=value)
-            case 'year_lte':
-                qs = qs.filter(year__lte=value)
+    brand = filters.CharFilter('brand',lookup_expr='icontains')
 
-            case 'brand_start':
-                qs = qs.filter(brand__istartswith=value)
-            case 'brand_end':
-                qs = qs.filter(brand__iendswith=value)
-            case 'brand_contains':
-                qs = qs.filter(brand__icontains=value)
+    price_lt = filters.NumberFilter('price', lookup_expr='lt')
+    price_gt = filters.NumberFilter('price', lookup_expr='gt')
+    price_lte = filters.NumberFilter('price', lookup_expr='lte')
+    price_gte = filters.NumberFilter('price', lookup_expr='gte')
+    price_range = filters.NumberFilter('price', lookup_expr='range')
 
-            case 'order':
-                fields = CarSerializer.Meta.fields
-                fields = [*fields, *[f'-{field}' for field in fields]]
-
-                if value not in fields:
-                    raise ValidationError({'details': f'Please choice order from {", ".join(fields)}'})
-                qs = qs.order_by(value)
-            case _:
-                raise ValidationError({'Details': f'{key} is not a allowed here'})
-    return qs
+    order = filters.OrderingFilter(
+        fields=(
+            'id',
+            'brand',
+            'year',
+            'price',
+        )
+    )
