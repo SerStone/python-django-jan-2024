@@ -6,7 +6,7 @@ from .serializers import CarSerializer
 
 
 class CarsListCreateView(ListAPIView):
-    queryset = CarModel.objects.all()
+    queryset = CarModel.objects.get_only_tesla()
     serializer_class = CarSerializer
     filterset_class = CarFilter
 

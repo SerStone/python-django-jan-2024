@@ -10,4 +10,4 @@ class AutoParkModel(BaseModel):
         db_table = 'auto_parks'
 
     name = models.CharField(max_length=20)
-    user = models.ForeignKey(UserModel, on_delete=models.CASCADE, related_name='auto_parks')
+    # user = models.ForeignKey(UserModel, on_delete=models.CASCADE, related_name='auto_parks')
