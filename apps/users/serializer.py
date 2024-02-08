@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.transaction import atomic
 
 from rest_framework import serializers
 
@@ -10,7 +11,18 @@ UserModel = get_user_model()
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileModel
-        fields = ('id', 'first_name', 'last_name', 'age', 'gender', 'phone_number')
+        fields = ('id', 'first_name', 'last_name', 'age', 'gender', 'phone_number', 'avatar', 'user')
+
+
+class ProfileAvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileModel
+        fields = ('avatar',)
+        extra_kwargs = {
+            'avatar': {
+                'required': True
+            }
+        }
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
         fields = ('id', 'email', 'password', 'is_active', 'is_staff', 'is_superuser',
-                  'last_login', 'created_at', 'updated_at', 'profile')
+                  'last_login', 'created_at', 'updated_at', 'profile',)
 
         read_only_fields = ('id', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'created_at', 'updated_at')
         extra_kwargs = {
@@ -28,6 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
             }
         }
 
+    @atomic
     def create(self, validated_data: dict):
         profile = validated_data.pop('profile')
         user = UserModel.objects.create_user(**validated_data)
