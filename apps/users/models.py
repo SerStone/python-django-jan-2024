@@ -13,7 +13,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin, BaseModel):
         db_table = 'auth_user'
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'

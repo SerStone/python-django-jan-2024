@@ -1,20 +1,23 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, ListCreateAPIView, UpdateAPIView
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.generics import CreateAPIView, GenericAPIView, ListCreateAPIView, UpdateAPIView
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from core.permissions.is_admin_or_write_only_permission import IsAdminOrWriteOnlyPermission
 from core.permissions.is_superuser import IsSuperuser
+from core.services.email_service import EmailService
 
 from apps.users.models import ProfileModel
 from apps.users.serializer import ProfileAvatarSerializer, UserSerializer
 
+from .models import UserModel as User
+
 UserModel = get_user_model()
 
 
-class UserCreateApiView(ListCreateAPIView):
+class UserCreateView(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = UserModel.objects.all()
     permission_classes = (IsAdminOrWriteOnlyPermission,)
@@ -26,7 +29,6 @@ class MeView(GenericAPIView):
     def get(self, *args, **kwargs):
         user = self.request.user
         serializer = UserSerializer(user)
-
         return Response(serializer.data, status.HTTP_200_OK)
 
 
@@ -44,14 +46,14 @@ class UserAddAvatarView(UpdateAPIView):
         super().perform_update(serializer)
 
 
-class UserToAdminView(UpdateAPIView):
+class UserToAdminView(GenericAPIView):
     permission_classes = (IsSuperuser,)
 
     def get_queryset(self):
         return UserModel.objects.exclude(id=self.request.user.id)
 
     def put(self, *args, **kwargs):
-        user: UserModel = self.get_object()
+        user: User = self.get_object()
 
         if not user.is_staff:
             user.is_staff = True
@@ -61,14 +63,14 @@ class UserToAdminView(UpdateAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class AdminToUserView(UpdateAPIView):
+class AdminToUserView(GenericAPIView):
     permission_classes = (IsSuperuser,)
 
     def get_queryset(self):
         return UserModel.objects.exclude(id=self.request.user.id)
 
     def put(self, *args, **kwargs):
-        user: UserModel = self.get_object()
+        user: User = self.get_object()
 
         if user.is_staff:
             user.is_staff = False
@@ -78,31 +80,14 @@ class AdminToUserView(UpdateAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class UserBlockView(UpdateAPIView):
+class UserBlockView(GenericAPIView):
     permission_classes = (IsAdminUser,)
 
     def get_queryset(self):
         return UserModel.objects.exclude(id=self.request.user.id)
 
     def put(self, *args, **kwargs):
-        user: UserModel = self.get_object()
-
-        if not user.is_active:
-            user.is_active = True
-            user.save()
-
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status.HTTP_200_OK)
-
-
-class UserUnblockView(UpdateAPIView):
-    permission_classes = (IsAdminUser,)
-
-    def get_queryset(self):
-        return UserModel.objects.exclude(id=self.request.user.id)
-
-    def put(self, *args, **kwargs):
-        user: UserModel = self.get_object()
+        user: User = self.get_object()
 
         if user.is_active:
             user.is_active = False
@@ -111,3 +96,19 @@ class UserUnblockView(UpdateAPIView):
         serializer = UserSerializer(user)
         return Response(serializer.data, status.HTTP_200_OK)
 
+
+class UserUnblockView(GenericAPIView):
+    permission_classes = (IsAdminUser,)
+
+    def get_queryset(self):
+        return UserModel.objects.exclude(id=self.request.user.id)
+
+    def put(self, *args, **kwargs):
+        user: User = self.get_object()
+
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status.HTTP_200_OK)
