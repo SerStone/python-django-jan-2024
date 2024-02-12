@@ -27,10 +27,6 @@ class ProfileAvatarSerializer(serializers.ModelSerializer):
         }
 
 
-class UserForgetPassSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-
-
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
 

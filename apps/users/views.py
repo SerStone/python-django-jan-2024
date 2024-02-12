@@ -7,7 +7,6 @@ from rest_framework.response import Response
 
 from core.permissions.is_admin_or_write_only_permission import IsAdminOrWriteOnlyPermission
 from core.permissions.is_superuser import IsSuperuser
-from core.services.email_service import EmailService
 
 from apps.users.models import ProfileModel
 from apps.users.serializer import ProfileAvatarSerializer, UserSerializer

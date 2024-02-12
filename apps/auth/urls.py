@@ -6,7 +6,7 @@ from apps.auth.views import ForgetPassView, UserActivateView, UserRestorePassVie
 from apps.users.views import MeView
 
 urlpatterns = [
-    path('', TokenObtainPairView.as_view(), name='auth_login'),
+    path('/login', TokenObtainPairView.as_view(), name='auth_login'),
     path('/refresh', TokenRefreshView.as_view(), name='auth_refresh'),
     path('/me', MeView.as_view(), name='auth_me'),
     path('/activate/<str:token>', UserActivateView.as_view(), name='auth_activate'),
