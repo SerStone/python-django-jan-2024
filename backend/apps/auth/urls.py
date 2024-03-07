@@ -2,7 +2,7 @@ from django.urls import path
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from apps.auth.views import ForgetPassView, UserActivateView, UserRestorePassView
+from apps.auth.views import ForgetPassView, SocketView, UserActivateView, UserRestorePassView
 from apps.users.views import MeView
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
     path('/activate/<str:token>', UserActivateView.as_view(), name='auth_activate'),
     path('/reset/<str:token>', UserRestorePassView.as_view(), name='auth_reset'),
     path('/forget_pass', ForgetPassView.as_view(), name='auth_forget_pass'),
+    path('/socket', SocketView.as_view(), name='auth_socket_token'),
 ]

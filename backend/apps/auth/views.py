@@ -3,12 +3,12 @@ from django.views.generic import detail
 
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, get_object_or_404
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from core.dataclasses.user_dataclass import UserDataClass
 from core.services.email_service import EmailService
-from core.services.jwt_service import ActivateFToken, ActivateToken, JWTService
+from core.services.jwt_service import ActivateFToken, ActivateToken, JWTService, SocketToken
 
 from apps.auth.serializers import EmailSerializer, PasswordSerializers
 from apps.users.models import UserModel as User
@@ -58,3 +58,10 @@ class UserRestorePassView(GenericAPIView):
         user.save()
         return Response({detail: "Password reset successful"}, status=status.HTTP_200_OK)
 
+
+class SocketView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, *args, **kwargs):
+        token = JWTService.create_token(self.request.user, SocketToken)
+        return Response({"token": str(token)}, status=status.HTTP_200_OK)

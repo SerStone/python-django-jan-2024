@@ -1,9 +1,12 @@
 from django.contrib.auth import get_user_model
+from django.utils.decorators import method_decorator
 
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, GenericAPIView, ListCreateAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+
+from drf_yasg.utils import swagger_auto_schema
 
 from core.permissions.is_admin_or_write_only_permission import IsAdminOrWriteOnlyPermission
 from core.permissions.is_superuser import IsSuperuser
@@ -16,6 +19,7 @@ from .models import UserModel as User
 UserModel = get_user_model()
 
 
+@method_decorator(name='get', decorator=swagger_auto_schema(security=[]))
 class UserCreateView(ListCreateAPIView):
     serializer_class = UserSerializer
     queryset = UserModel.objects.all()
@@ -48,6 +52,9 @@ class UserAddAvatarView(UpdateAPIView):
 class UserToAdminView(GenericAPIView):
     permission_classes = (IsSuperuser,)
 
+    def get_serializer(self):
+        pass
+
     def get_queryset(self):
         return UserModel.objects.exclude(id=self.request.user.id)
 
@@ -64,6 +71,9 @@ class UserToAdminView(GenericAPIView):
 
 class AdminToUserView(GenericAPIView):
     permission_classes = (IsSuperuser,)
+
+    def get_serializer(self):
+        pass
 
     def get_queryset(self):
         return UserModel.objects.exclude(id=self.request.user.id)
@@ -82,6 +92,9 @@ class AdminToUserView(GenericAPIView):
 class UserBlockView(GenericAPIView):
     permission_classes = (IsAdminUser,)
 
+    def get_serializer(self):
+        pass
+
     def get_queryset(self):
         return UserModel.objects.exclude(id=self.request.user.id)
 
@@ -99,9 +112,13 @@ class UserBlockView(GenericAPIView):
 class UserUnblockView(GenericAPIView):
     permission_classes = (IsAdminUser,)
 
+    def get_serializer(self):
+        pass
+
     def get_queryset(self):
         return UserModel.objects.exclude(id=self.request.user.id)
 
+    @swagger_auto_schema(security=[])
     def put(self, *args, **kwargs):
         user: User = self.get_object()
 
